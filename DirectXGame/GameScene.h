@@ -4,7 +4,6 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Skydom.h"
-#include "RailCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -53,11 +52,9 @@ private: // メンバ変数
 	Player* player_ = nullptr;
 	Skydom* skydome_ = nullptr;
 	Enemy* enemy_ = nullptr;
-	RailCamera* railCamera_ = nullptr;
+
 	KamataEngine::Model* enemyModel_ = nullptr;
 	KamataEngine::Camera* enemyCamera_ = nullptr;
-
-	KamataEngine::Vector3 rotate_ = { 0.0f,0.0f,0.0f };
 
 	/// <summary>
 	/// ゲームシーン用

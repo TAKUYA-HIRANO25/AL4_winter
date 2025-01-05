@@ -11,6 +11,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 
 	model_ = model;
 
+
 	objColor_.Initialize();
 
 	worldTransform_.Initialize();

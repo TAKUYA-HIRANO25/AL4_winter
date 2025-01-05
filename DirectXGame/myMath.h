@@ -19,7 +19,6 @@ public:
 	static KamataEngine::Matrix4x4 MakeRotateYMatrix(float radius);
 	static KamataEngine::Matrix4x4 MakeRotateZMatrix(float radius);
 	static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rotate, const KamataEngine::Vector3& translate);
-	static KamataEngine::Matrix4x4 Inverse(const KamataEngine::Matrix4x4& m);
 	static KamataEngine::Vector3 Transform(const KamataEngine::Vector3& vector, const KamataEngine::Matrix4x4& matrix);
 	static KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& vector, const KamataEngine::Matrix4x4& matrix);
 	static KamataEngine::Vector3 Normalize(const KamataEngine::Vector3& v); 

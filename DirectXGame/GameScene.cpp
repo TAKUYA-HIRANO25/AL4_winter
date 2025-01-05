@@ -23,15 +23,11 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("sphere", true);
 
-	camera_ = new Camera();
+	camera_ = new Camera;
 	camera_->Initialize();
 	camera_->farZ = 100.0f;
-
 	enemyCamera_ = new Camera();
 	enemyCamera_->Initialize();
-
-	railCamera_ = new RailCamera();
-	railCamera_->Initialize(camera_->translation_ ,camera_->rotation_);
 
 	player_ = new Player();
 	player_->Initialize(model_,camera_);
@@ -64,8 +60,6 @@ void GameScene::Update() {
 
 	enemy_->Update();
 
-	railCamera_->Update();
-
 	debugCamera_->Update();
 
 	checkAllcollisions();
@@ -81,9 +75,7 @@ void GameScene::Update() {
 	}
 	else {
 		// ビュープロジェクション行列の更新と転送
-		camera_->matView = railCamera_->GetCamera().matView;
-		camera_->matProjection = railCamera_->GetCamera().matProjection;
-		camera_->TransferMatrix();
+		camera_->UpdateMatrix();
 	}
 
 }

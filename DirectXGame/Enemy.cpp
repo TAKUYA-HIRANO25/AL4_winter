@@ -18,7 +18,7 @@ Enemy::~Enemy()
 	}
 }
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position)
+void Enemy::Initialize(Model* model, Camera* camera, const KamataEngine::Vector3& position)
 {
 	assert(model);
 

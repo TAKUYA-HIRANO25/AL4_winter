@@ -3,15 +3,8 @@
 
 using namespace KamataEngine;
 
-void WorldTransform::UpdateMatrix(bool isTranslate) {
+void WorldTransform::UpdateMatrix() {
 	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
-	if (parent_) {
-		//matWorld_ *= parent_->matWorld_;
-	}
-	if (isTranslate) {
-		TransferMatrix();
-	}
+
+	TransferMatrix();
 }
-
-
-

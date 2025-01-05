@@ -177,100 +177,6 @@ Matrix4x4 myMath::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, 
 	return SRTResult;
 }
 
-Matrix4x4 myMath::Inverse(const Matrix4x4& m)
-{
-	float determinant =
-		+m.m[0][0] * m.m[1][1] * m.m[2][2] * m.m[3][3]
-		+ m.m[0][0] * m.m[1][2] * m.m[2][3] * m.m[3][1]
-		+ m.m[0][0] * m.m[1][3] * m.m[2][1] * m.m[3][2]
-
-		- m.m[0][0] * m.m[1][3] * m.m[2][2] * m.m[3][1]
-		- m.m[0][0] * m.m[1][2] * m.m[2][1] * m.m[3][3]
-		- m.m[0][0] * m.m[1][1] * m.m[2][3] * m.m[3][2]
-
-		- m.m[0][1] * m.m[1][0] * m.m[2][2] * m.m[3][3]
-		- m.m[0][2] * m.m[1][0] * m.m[2][3] * m.m[3][1]
-		- m.m[0][3] * m.m[1][0] * m.m[2][1] * m.m[3][2]
-
-		+ m.m[0][3] * m.m[1][0] * m.m[2][2] * m.m[3][1]
-		+ m.m[0][2] * m.m[1][0] * m.m[2][1] * m.m[3][3]
-		+ m.m[0][1] * m.m[1][0] * m.m[2][3] * m.m[3][2]
-
-		+ m.m[0][1] * m.m[1][2] * m.m[2][0] * m.m[3][3]
-		+ m.m[0][2] * m.m[1][3] * m.m[2][0] * m.m[3][1]
-		+ m.m[0][3] * m.m[1][1] * m.m[2][0] * m.m[3][2]
-
-		- m.m[0][3] * m.m[1][2] * m.m[2][0] * m.m[3][1]
-		- m.m[0][2] * m.m[1][1] * m.m[2][0] * m.m[3][3]
-		- m.m[0][1] * m.m[1][3] * m.m[2][0] * m.m[3][2]
-
-		- m.m[0][1] * m.m[1][2] * m.m[2][3] * m.m[3][0]
-		- m.m[0][2] * m.m[1][3] * m.m[2][1] * m.m[3][0]
-		- m.m[0][3] * m.m[1][1] * m.m[2][2] * m.m[3][0]
-
-		+ m.m[0][3] * m.m[1][2] * m.m[2][1] * m.m[3][0]
-		+ m.m[0][2] * m.m[1][1] * m.m[2][3] * m.m[3][0]
-		+ m.m[0][1] * m.m[1][3] * m.m[2][2] * m.m[3][0];
-
-	Matrix4x4 result = {};
-
-	float recpDeterminant = 1.0f / determinant;
-
-	result.m[0][0] = (m.m[1][1] * m.m[2][2] * m.m[3][3] + m.m[1][2] * m.m[2][3] * m.m[3][1] +
-		m.m[1][3] * m.m[2][1] * m.m[3][2] - m.m[1][3] * m.m[2][2] * m.m[3][1] -
-		m.m[1][2] * m.m[2][1] * m.m[3][3] - m.m[1][1] * m.m[2][3] * m.m[3][2]) * recpDeterminant;
-	result.m[0][1] = (-m.m[0][1] * m.m[2][2] * m.m[3][3] - m.m[0][2] * m.m[2][3] * m.m[3][1] -
-		m.m[0][3] * m.m[2][1] * m.m[3][2] + m.m[0][3] * m.m[2][2] * m.m[3][1] +
-		m.m[0][2] * m.m[2][1] * m.m[3][3] + m.m[0][1] * m.m[2][3] * m.m[3][2]) * recpDeterminant;
-	result.m[0][2] = (m.m[0][1] * m.m[1][2] * m.m[3][3] + m.m[0][2] * m.m[1][3] * m.m[3][1] +
-		m.m[0][3] * m.m[1][1] * m.m[3][2] - m.m[0][3] * m.m[1][2] * m.m[3][1] -
-		m.m[0][2] * m.m[1][1] * m.m[3][3] - m.m[0][1] * m.m[1][3] * m.m[3][2]) * recpDeterminant;
-	result.m[0][3] = (-m.m[0][1] * m.m[1][2] * m.m[2][3] - m.m[0][2] * m.m[1][3] * m.m[2][1] -
-		m.m[0][3] * m.m[1][1] * m.m[2][2] + m.m[0][3] * m.m[1][2] * m.m[2][1] +
-		m.m[0][2] * m.m[1][1] * m.m[2][3] + m.m[0][1] * m.m[1][3] * m.m[2][2]) * recpDeterminant;
-
-	result.m[1][0] = (-m.m[1][0] * m.m[2][2] * m.m[3][3] - m.m[1][2] * m.m[2][3] * m.m[3][0] -
-		m.m[1][3] * m.m[2][0] * m.m[3][2] + m.m[1][3] * m.m[2][2] * m.m[3][0] +
-		m.m[1][2] * m.m[2][0] * m.m[3][3] + m.m[1][0] * m.m[2][3] * m.m[3][2]) * recpDeterminant;
-	result.m[1][1] = (m.m[0][0] * m.m[2][2] * m.m[3][3] + m.m[0][2] * m.m[2][3] * m.m[3][0] +
-		m.m[0][3] * m.m[2][0] * m.m[3][2] - m.m[0][3] * m.m[2][2] * m.m[3][0] -
-		m.m[0][2] * m.m[2][0] * m.m[3][3] - m.m[0][0] * m.m[2][3] * m.m[3][2]) * recpDeterminant;
-	result.m[1][2] = (-m.m[0][0] * m.m[1][2] * m.m[3][3] - m.m[0][2] * m.m[1][3] * m.m[3][0] -
-		m.m[0][3] * m.m[1][0] * m.m[3][2] + m.m[0][3] * m.m[1][2] * m.m[3][0] +
-		m.m[0][2] * m.m[1][0] * m.m[3][3] + m.m[0][0] * m.m[1][3] * m.m[3][2]) * recpDeterminant;
-	result.m[1][3] = (m.m[0][0] * m.m[1][2] * m.m[2][3] + m.m[0][2] * m.m[1][3] * m.m[2][0] +
-		m.m[0][3] * m.m[1][0] * m.m[2][2] - m.m[0][3] * m.m[1][2] * m.m[2][0] -
-		m.m[0][2] * m.m[1][0] * m.m[2][3] - m.m[0][0] * m.m[1][3] * m.m[2][2]) * recpDeterminant;
-
-	result.m[2][0] = (m.m[1][0] * m.m[2][1] * m.m[3][3] + m.m[1][1] * m.m[2][3] * m.m[3][0] +
-		m.m[1][3] * m.m[2][0] * m.m[3][1] - m.m[1][3] * m.m[2][1] * m.m[3][0] -
-		m.m[1][1] * m.m[2][0] * m.m[3][3] - m.m[1][0] * m.m[2][3] * m.m[3][1]) * recpDeterminant;
-	result.m[2][1] = (-m.m[0][0] * m.m[2][1] * m.m[3][3] - m.m[0][1] * m.m[2][3] * m.m[3][0] -
-		m.m[0][3] * m.m[2][0] * m.m[3][1] + m.m[0][3] * m.m[2][1] * m.m[3][0] +
-		m.m[0][1] * m.m[2][0] * m.m[3][3] + m.m[0][0] * m.m[2][3] * m.m[3][1]) * recpDeterminant;
-	result.m[2][2] = (m.m[0][0] * m.m[1][1] * m.m[3][3] + m.m[0][1] * m.m[1][3] * m.m[3][0] +
-		m.m[0][3] * m.m[1][0] * m.m[3][1] - m.m[0][3] * m.m[1][1] * m.m[3][0] -
-		m.m[0][1] * m.m[1][0] * m.m[3][3] - m.m[0][0] * m.m[1][3] * m.m[3][1]) * recpDeterminant;
-	result.m[2][3] = (-m.m[0][0] * m.m[1][1] * m.m[2][3] - m.m[0][1] * m.m[1][3] * m.m[2][0] -
-		m.m[0][3] * m.m[1][0] * m.m[2][1] + m.m[0][3] * m.m[1][1] * m.m[2][0] +
-		m.m[0][1] * m.m[1][0] * m.m[2][3] + m.m[0][0] * m.m[1][3] * m.m[2][1]) * recpDeterminant;
-
-	result.m[3][0] = (-m.m[1][0] * m.m[2][1] * m.m[3][2] - m.m[1][1] * m.m[2][2] * m.m[3][0] -
-		m.m[1][2] * m.m[2][0] * m.m[3][1] + m.m[1][2] * m.m[2][1] * m.m[3][0] +
-		m.m[1][1] * m.m[2][0] * m.m[3][2] + m.m[1][0] * m.m[2][2] * m.m[3][1]) * recpDeterminant;
-	result.m[3][1] = (m.m[0][0] * m.m[2][1] * m.m[3][2] + m.m[0][1] * m.m[2][2] * m.m[3][0] +
-		m.m[0][2] * m.m[2][0] * m.m[3][1] - m.m[0][2] * m.m[2][1] * m.m[3][0] -
-		m.m[0][1] * m.m[2][0] * m.m[3][2] - m.m[0][0] * m.m[2][2] * m.m[3][1]) * recpDeterminant;
-	result.m[3][2] = (-m.m[0][0] * m.m[1][1] * m.m[3][2] - m.m[0][1] * m.m[1][2] * m.m[3][0] -
-		m.m[0][2] * m.m[1][0] * m.m[3][1] + m.m[0][2] * m.m[1][1] * m.m[3][0] +
-		m.m[0][1] * m.m[1][0] * m.m[3][2] + m.m[0][0] * m.m[1][2] * m.m[3][1]) * recpDeterminant;
-	result.m[3][3] = (m.m[0][0] * m.m[1][1] * m.m[2][2] + m.m[0][1] * m.m[1][2] * m.m[2][0] +
-		m.m[0][2] * m.m[1][0] * m.m[2][1] - m.m[0][2] * m.m[1][1] * m.m[2][0] -
-		m.m[0][1] * m.m[1][0] * m.m[2][2] - m.m[0][0] * m.m[1][2] * m.m[2][1]) * recpDeterminant;
-
-	return result;
-}
-
 Vector3 myMath::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result;
 	result.x = matrix.m[0][0] * vector.x + matrix.m[1][0] * vector.y + matrix.m[2][0] * vector.z + matrix.m[3][0];
@@ -305,10 +211,9 @@ float Length(const KamataEngine::Vector3& v)
 	return std::sqrt(Dot(v, v));
 }
 
-Vector3 myMath::Normalize(const KamataEngine::Vector3& v)
+KamataEngine::Vector3 myMath::Normalize(const KamataEngine::Vector3& v)
 {
 	float length = Length(v);
 	assert(length != 0.0f);
 	return { v.x / length, v.y / length, v.z / length };
 }
-

@@ -18,15 +18,6 @@ void TitleScene::Initialize() {
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 	camera_.Initialize();
 
-	titleSprite1_ = TextureManager::Load("back.png");
-	title1_ = Sprite::Create(titleSprite1_, { 0,0 });
-	titleSprite2_ = TextureManager::Load("Title.png");
-	title2_ = Sprite::Create(titleSprite2_, { 0,0 });
-	//BGM
-	audio = Audio::GetInstance();
-	TitleSound_ = audio->LoadWave("BGM/TitleBGM.mp3");
-	TitleHandle_ = audio->PlayWave(TitleSound_, true);
-	DecisionSound_ = audio->LoadWave("BGM/Decision.mp3");
 }
 
 void TitleScene::Update() {
@@ -36,7 +27,7 @@ void TitleScene::Update() {
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 			phase_ = Phase::kMain;
-			DecisionHandle_ = audio->PlayWave(DecisionSound_, false);
+			
 		}
 		fade_->Update();
 		break;
@@ -47,7 +38,7 @@ void TitleScene::Update() {
 		}
 		break;
 	case TitleScene::Phase::kFadeOut:
-		audio->StopWave(TitleHandle_);
+		
 		finished_ = true;
 		break;
 	default:
@@ -68,9 +59,7 @@ void TitleScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの処理を追加できる
 	/// </summary>
-	title1_->Draw();
 
-	title2_->Draw();
 
 	// スプライト処理後描画
 	KamataEngine::Sprite::PostDraw();

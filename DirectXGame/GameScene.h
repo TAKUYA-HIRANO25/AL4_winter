@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Skydom.h"
+#include "Fade.h"
 
 /// <summary>
 /// ゲームシーン
@@ -38,6 +39,10 @@ public: // メンバ関数
 
 	void checkAllcollisions();
 
+	bool IsFinished() const { return finished_; }
+
+	void ChangePhase();
+
 private: // メンバ変数
 
 	KamataEngine::DirectXCommon* dxCommon_ = nullptr;
@@ -55,6 +60,24 @@ private: // メンバ変数
 
 	KamataEngine::Model* enemyModel_ = nullptr;
 	KamataEngine::Camera* enemyCamera_ = nullptr;
+
+	//フェード
+	Fade* fade = nullptr;
+
+	// 終了フラグ
+	bool finished_ = false;
+
+	// ゲームのフェーズ
+	enum class Phase {
+		kFadeIn,  // フェードイン
+		kMain,    // メイン部
+		kFadeOut, // フェードアウト
+		kPlay,
+		kDeath,
+		kClear,
+	};
+	// ゲームの現在のフェーズ
+	Phase phase_;
 
 	/// <summary>
 	/// ゲームシーン用

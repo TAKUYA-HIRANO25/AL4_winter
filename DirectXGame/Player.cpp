@@ -20,9 +20,15 @@ Player::~Player()
 
 void Player::Initialize(Model* model, Camera* camera)
 {
+	audio_ = Audio::GetInstance();
 	model_ = model;
-
+	bulletModel_ = Model::CreateFromOBJ("Bullet", true);
 	camera_ = camera;
+
+	isDead_ = false;
+
+	ShotSound_ = audio_->LoadWave("BGM/Shot.mp3");
+	PlayerHP = 3.0f;
 
 	objColor_.Initialize();
 
@@ -33,9 +39,6 @@ void Player::Initialize(Model* model, Camera* camera)
 
 void Player::Update()
 {
-	ImGui::Begin("Debug1");
-	ImGui::DragFloat3("Player", &worldTransform_.translation_.x, 0.1f);
-	ImGui::End();
 
 	bullets_.remove_if([](PlayerBullet* bullet) {
 		if (bullet->IsDead()) {
@@ -49,22 +52,26 @@ void Player::Update()
 
 	const float kCharacterSpeed = 0.2f;
 
-	if (input_->PushKey(DIK_LEFT)) {
+	if (input_->PushKey(DIK_A)) {
 		move.x -= kCharacterSpeed;
 	}
-	else if (input_->PushKey(DIK_RIGHT)) {
+	else if (input_->PushKey(DIK_D)) {
 		move.x += kCharacterSpeed;
 	}
-	if (input_->PushKey(DIK_UP)) {
+	if (input_->PushKey(DIK_W)) {
 		move.y += kCharacterSpeed;
 	}
-	else if (input_->PushKey(DIK_DOWN)) {
+	else if (input_->PushKey(DIK_S)) {
 		move.y -= kCharacterSpeed;
 	}
 
 	Rotate();
 
 	Attack();
+
+	if (PlayerHP <= 0) {
+		isDead_ = true;
+	}
 
 	for(PlayerBullet* bullet : bullets_){
 		bullet->Update();
@@ -93,10 +100,10 @@ void Player::Rotate()
 {
 	const float kRotSpeed = 0.02f;
 
-	if (input_->PushKey(DIK_A)) {
+	if (input_->PushKey(DIK_LEFT)) {
 		worldTransform_.rotation_.y -= kRotSpeed;
 	}
-	else if (input_->PushKey(DIK_D)) {
+	else if (input_->PushKey(DIK_RIGHT)) {
 		worldTransform_.rotation_.y += kRotSpeed;
 	}
 
@@ -104,8 +111,8 @@ void Player::Rotate()
 
 void Player::Attack()
 {
-
-	if (input_->PushKey(DIK_S)) {
+	if (input_->TriggerKey(DIK_SPACE)) {
+		ShotHandle_ = audio_->PlayWave(ShotSound_, false, 0.8f);
 
 		const float kBulletSpeed = 1.0f;
 
@@ -114,10 +121,11 @@ void Player::Attack()
 		velocity = myMath::TransformNormal(velocity, worldTransform_.matWorld_);
 
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity);
 
 		bullets_.push_back(newBullet);
 	}
+
 }
 
 KamataEngine::Vector3 Player::GetWorldPosition()
@@ -130,5 +138,5 @@ KamataEngine::Vector3 Player::GetWorldPosition()
 
 void Player::OnCollision()
 {
-
+	PlayerHP -= 1;
 }

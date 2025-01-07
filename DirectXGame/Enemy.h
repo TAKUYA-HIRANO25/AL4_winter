@@ -4,6 +4,7 @@
 #include "3d/Camera.h"
 #include <math/Vector3.h>
 #include "EnemyBullet.h"
+#include <audio/Audio.h>
 #include <list>
 
 enum class Phase {
@@ -37,9 +38,13 @@ public:
 
 	void Fire();
 
-	static const int kFireInterval = 180;
+	static const int kFireInterval = 90;
+
+	static const int kMoveInterval = 360;
 
 	void FireTime();
+
+	void MoveTime();
 
 	void setPlayer(Player* player) { player_ = player; }
 
@@ -49,12 +54,14 @@ public:
 
 	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
 
-private:
+	bool IsDead() const { return isDead_; }
 
+private:
+	KamataEngine::Audio* audio_ = nullptr;
 	KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Model* model_ = nullptr;
-
+	KamataEngine::Model* bulletModel_ = nullptr;
 	KamataEngine::Camera* camera_ = nullptr;
 
 	KamataEngine::ObjectColor objColor_;
@@ -67,8 +74,17 @@ private:
 
 	int32_t Time = 0;
 
+	KamataEngine::Vector3 move = { 0.2f,0.0f,0.0f };
+
+	int32_t moveTime = 0;
+
 	Player* player_ = nullptr;
 
-	
+	float EnemyHp = 10.0f;
 
+	bool isDead_ = false;
+
+	//SE
+	uint32_t ShotSound_ = 0;
+	uint32_t ShotHandle_ = 0;
 };

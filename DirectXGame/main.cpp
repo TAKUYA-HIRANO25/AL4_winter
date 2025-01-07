@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow(L"LE2C_19_ヒラノ_タクヤ_AL4_Winter");
+	win->CreateGameWindow(L"LE2C_19_ヒラノ_タクヤ_SkyShooting");
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();

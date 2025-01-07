@@ -44,12 +44,15 @@ public: // メンバ関数
 	void ChangePhase();
 
 private: // メンバ変数
-
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::ObjectColor objColor_;
 	KamataEngine::DirectXCommon* dxCommon_ = nullptr;
 	KamataEngine::Input* input_ = nullptr;
 	KamataEngine::Audio* audio_ = nullptr;
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelSkydome_ = nullptr;
+	KamataEngine::Model* modelClear_ = nullptr;
+	KamataEngine::Model* modelOver_ = nullptr;
 	KamataEngine::Camera* camera_ = nullptr;
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
@@ -79,6 +82,15 @@ private: // メンバ変数
 	// ゲームの現在のフェーズ
 	Phase phase_;
 
+	//BGM
+	uint32_t GameSound_ = 0;
+	uint32_t GameHandle_ = 0;
+	// 決定音
+	uint32_t DecisionSound_ = 0;
+	uint32_t DecisionHandle_ = 0;
+	//テクスチャー
+	uint32_t texturOperation = 0;
+	KamataEngine::Sprite* spriteOperation = nullptr;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

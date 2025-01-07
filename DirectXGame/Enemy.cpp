@@ -20,15 +20,23 @@ Enemy::~Enemy()
 
 void Enemy::Initialize(Model* model, Camera* camera, const KamataEngine::Vector3& position)
 {
+	audio_ = Audio::GetInstance();
+	ShotSound_ = audio_->LoadWave("BGM/Shot.mp3");
+
 	assert(model);
 
 	model_ = model;
 
 	objColor_.Initialize();
-
+	bulletModel_ = Model::CreateFromOBJ("EnemyBullet", true);
 	worldTransform_.Initialize();
 
+	EnemyHp = 10.0f;
+
+	isDead_ = false;
+
 	FireTime();
+	MoveTime();
 
 	camera_ = camera;
 
@@ -48,13 +56,14 @@ void Enemy::Update()
 			}
 			return false;
 			});
-
-		worldTransform_.translation_ += Vector3(0, 0, -0.1f);
-
-		if (worldTransform_.translation_.z < 0.0f) {
-			phase_ = Phase::Leave;
+		moveTime--;
+		if (moveTime == 0) {
+			move.x *= -1;
+			moveTime = kMoveInterval;
 		}
-		
+
+		worldTransform_.translation_ += move;
+
 		Time--;
 
 		if (Time == 0) {
@@ -66,6 +75,10 @@ void Enemy::Update()
 
 		for (EnemyBullet* bullet : bullets_) {
 			bullet->Update();
+		}
+
+		if (EnemyHp <= 0) {
+			isDead_ = true;
 		}
 
 		break;
@@ -94,6 +107,8 @@ void Enemy::Draw()
 
 void Enemy::Fire()
 {
+	ShotHandle_ = audio_->PlayWave(ShotSound_, false, 0.8f);
+
 	const float kBulletSpeed = 0.5f;
 
 	Vector3 velocity(0, 0, 0);
@@ -105,7 +120,7 @@ void Enemy::Fire()
 	velocity = myMath::Normalize(goalPosition);
 	velocity = { velocity.x * kBulletSpeed,velocity.y * kBulletSpeed, velocity.z * kBulletSpeed };
 	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity);
 
 	bullets_.push_back(newBullet);
 
@@ -114,6 +129,11 @@ void Enemy::Fire()
 void Enemy::FireTime()
 {
 	Time = kFireInterval;
+}
+
+void Enemy::MoveTime()
+{
+	moveTime = 180;
 }
 
 KamataEngine::Vector3 Enemy::GetWorldPosition()
@@ -126,6 +146,7 @@ KamataEngine::Vector3 Enemy::GetWorldPosition()
 
 void Enemy::OnCollision()
 {
+	EnemyHp -= 1;
 }
 
 

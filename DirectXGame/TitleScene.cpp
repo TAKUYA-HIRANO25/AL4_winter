@@ -13,10 +13,24 @@ void TitleScene::Initialize() {
 	dxCommon_ = KamataEngine::DirectXCommon::GetInstance();
 	input_ = KamataEngine::Input::GetInstance();
 	audio_ = KamataEngine::Audio::GetInstance();
+	worldTransform_.Initialize();
+	worldTransform_.translation_.z = -40;
+	camera_ = new Camera;
+	camera_->Initialize();
+	camera_->farZ = 1500.0f;
+	modelSkydome_ = Model::CreateFromOBJ("sphere", true);
+	TitleModel_ = Model::CreateFromOBJ("Title", true);
+	skydome_ = new Skydom();
+	skydome_->Initialize(modelSkydome_, camera_);
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
-	camera_.Initialize();
+	objColor_.Initialize();
+	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetCamera(camera_);
+	TitleSound_ = audio_->LoadWave("BGM/Title.wav");
+	TitleHandle_ = audio_->PlayWave(TitleSound_, true);
+	DecisionSound_ = audio_->LoadWave("BGM/Decision.mp3");
 
 }
 
@@ -27,8 +41,10 @@ void TitleScene::Update() {
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 			phase_ = Phase::kMain;
-			
+			DecisionHandle_ = audio_->PlayWave(DecisionSound_, false);
 		}
+		camera_->UpdateMatrix();
+		worldTransform_.UpdateMatrix();
 		fade_->Update();
 		break;
 	case TitleScene::Phase::kMain:
@@ -39,6 +55,7 @@ void TitleScene::Update() {
 		break;
 	case TitleScene::Phase::kFadeOut:
 		
+		audio_->StopWave(TitleHandle_);
 		finished_ = true;
 		break;
 	default:
@@ -74,7 +91,9 @@ void TitleScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	// プレイヤー描画
+	
+	TitleModel_->Draw(worldTransform_, *camera_, &objColor_);
+	skydome_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	KamataEngine::Model::PostDraw();

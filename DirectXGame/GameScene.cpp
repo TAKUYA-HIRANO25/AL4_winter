@@ -9,6 +9,8 @@ GameScene::~GameScene() {
 	delete player_;
 	delete model_;
 	delete camera_;
+	delete fade;
+	delete enemy_;
 	delete debugCamera_;
 	delete modelSkydome_;
 }
@@ -18,22 +20,28 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
-
-	model_ = Model::Create();
-	enemyModel_ = Model::Create();
+	objColor_.Initialize();
+	worldTransform_.Initialize();
+	worldTransform_.translation_.z = -40;
+	model_ = Model::CreateFromOBJ("Plyer",true);
+	enemyModel_ = Model::CreateFromOBJ("Enemy",true);
 	modelSkydome_ = Model::CreateFromOBJ("sphere", true);
-
+	modelClear_ = Model::CreateFromOBJ("Clear", true);
+	modelOver_ = Model::CreateFromOBJ("Over", true);
 	camera_ = new Camera;
 	camera_->Initialize();
-	camera_->farZ = 100.0f;
+	camera_->farZ = 1500.0f;
 	enemyCamera_ = new Camera();
 	enemyCamera_->Initialize();
+
+	texturOperation = TextureManager::Load("Operation.png");
+	spriteOperation = Sprite::Create(texturOperation, { 0.0f,0.0f });
 
 	player_ = new Player();
 	player_->Initialize(model_,camera_);
 	
 	enemy_ = new Enemy();
-	enemy_->Initialize(enemyModel_,enemyCamera_,Vector3(0, 0, 100));
+	enemy_->Initialize(enemyModel_,enemyCamera_,Vector3(0, 0, 40));
 	enemy_->setPlayer(player_);
 
 	skydome_ = new Skydom();
@@ -52,19 +60,15 @@ void GameScene::Initialize() {
 	fade->Initialize();
 	fade->Start(Fade::Status::FadeIn, 1.0f);
 
+	GameSound_ = audio_->LoadWave("BGM/GameBGM.mp3");
+	GameHandle_ = audio_->PlayWave(GameSound_, true, 0.2f);
+	DecisionSound_ = audio_->LoadWave("BGM/Decision.mp3");
+
 }
 
 void GameScene::Update() {
 	ChangePhase();
 
-#ifdef _DEBUG
-		if (input_->TriggerKey(DIK_SPACE)) {
-			if (isDebugCameraActive_ == true)
-				isDebugCameraActive_ = false;
-			else
-				isDebugCameraActive_ = true;
-		}
-#endif
 
 	switch (phase_) {
 	case GameScene::Phase::kPlay:
@@ -72,17 +76,29 @@ void GameScene::Update() {
 
 		enemy_->Update();
 
-		debugCamera_->Update();
-	case GameScene::Phase::kMain:
-
 		fade->Update();
-		break;
-	case GameScene::Phase::kDeath:
 
+		debugCamera_->Update();
+		break;
+
+	case GameScene::Phase::kFadeIn:
+
+		fade->Start(Fade::Status::FadeOut, 1.0f);
+		phase_ = Phase::kMain;
+
+		break;
+
+	case GameScene::Phase::kMain:
+		fade->Update();
+
+		break;
+
+
+	case GameScene::Phase::kDeath:
+		
 
 		break;
 	case GameScene::Phase::kClear:
-
 
 		break;
 	default:
@@ -103,7 +119,7 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の更新と転送
 		camera_->UpdateMatrix();
 	}
-
+	worldTransform_.UpdateMatrix();
 }
 
 void GameScene::Draw() {
@@ -118,6 +134,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+	
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -132,8 +149,20 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	player_->Draw();
-	enemy_->Draw();
+	switch (phase_) {
+	case GameScene::Phase::kPlay:
+		player_->Draw();
+		enemy_->Draw();
+		break;
+	case GameScene::Phase::kDeath:
+		modelOver_->Draw(worldTransform_, *camera_, &objColor_);
+
+		break;
+	case GameScene::Phase::kClear:
+		modelClear_->Draw(worldTransform_, *camera_, &objColor_);
+
+		break;
+	}
 	skydome_->Draw();
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -146,6 +175,12 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	switch (phase_) {
+	case GameScene::Phase::kPlay:
+		spriteOperation->Draw();
+	}
+
+	fade->Draw(commandList);
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -168,7 +203,7 @@ void GameScene::checkAllcollisions()
 
 		float coll = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) + (posB.z - posA.z) * (posB.z - posA.z);
 		//	半径は１
-		if (coll <= (1 + 1) * (1 + 1)) {
+		if (coll <= (0.5f + 1.0f) * (0.5f + 1.0f)) {
 			player_->OnCollision();
 
 			bullet->OnCollision();
@@ -189,7 +224,7 @@ void GameScene::checkAllcollisions()
 
 		float coll = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) + (posB.z - posA.z) * (posB.z - posA.z);
 		//	半径は１
-		if (coll <= (1 + 1) * (1 + 1)) {
+		if (coll <= (0.5f + 3.5f) * (0.5f + 3.5f)) {
 			enemy_->OnCollision();
 
 			bullet->OnCollision();
@@ -211,7 +246,7 @@ void GameScene::checkAllcollisions()
 			float coll = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) + (posB.z - posA.z) * (posB.z - posA.z);
 			
 			//	半径は１
-			if (coll <= (1 + 1) * (1 + 1)) {
+			if (coll <= (0.5f + 0.5f) * (0.5f + 0.5f)) {
 				bulletE->OnCollision();
 				bulletP->OnCollision();
 
@@ -227,7 +262,11 @@ void GameScene::ChangePhase()
 {
 	switch (phase_) {
 	case GameScene::Phase::kPlay:
-		if (input_->TriggerKey(DIK_SPACE)) {
+		if (player_->IsDead() == true) {
+			phase_ = Phase::kDeath;
+		}
+
+		if (enemy_->IsDead() == true) {
 			phase_ = Phase::kClear;
 		}
 		break;
@@ -247,17 +286,20 @@ void GameScene::ChangePhase()
 		break;
 
 	case GameScene::Phase::kFadeOut:
+		audio_->StopWave(GameHandle_);
 		finished_ = true;
 
 		break;
 	case GameScene::Phase::kDeath:
-		if (input_->TriggerKey(DIK_SPACE)) {
+		if (input_->TriggerKey(DIK_TAB)) {
+			DecisionHandle_ = audio_->PlayWave(DecisionSound_, false, 0.8f);
 			phase_ = Phase::kFadeIn;
 		}
 		break;
 
 	case GameScene::Phase::kClear:
-		if (input_->TriggerKey(DIK_SPACE)) {
+		if (input_->TriggerKey(DIK_TAB)) {
+			DecisionHandle_ = audio_->PlayWave(DecisionSound_, false, 0.8f);
 			phase_ = Phase::kFadeIn;
 		}
 

@@ -2,6 +2,7 @@
 
 #include <3d/WorldTransform.h>
 #include <3d/Model.h>
+#include <audio/Audio.h>
 #include <input/Input.h>
 #include <math/Vector3.h>
 #include "PlayerBullet.h"
@@ -45,10 +46,15 @@ public: // メンバ関数
 
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
+	bool IsDead() const { return isDead_; }
+
 private: // メンバ変数
+	KamataEngine::Audio* audio_ = nullptr;
+
 	KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* bulletModel_ = nullptr;
 
 	KamataEngine::Camera* camera_ = nullptr;
 
@@ -60,5 +66,13 @@ private: // メンバ変数
 	const float kMoveY = 18;
 
 	std::list<PlayerBullet*> bullets_;
+	int bulletTime = 0;
+	int bulletFlag = 0;
 
+	float PlayerHP = 5.0f;
+	bool isDead_ = false;
+
+	//SE
+	uint32_t ShotSound_ = 0;
+	uint32_t ShotHandle_ = 0;
 };
